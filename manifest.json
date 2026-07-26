@@ -1,0 +1,48 @@
+{
+  "name": "Icebox - Ma Liste de Glaces",
+  "short_name": "Icebox",
+  "description": "Gérez facilement votre liste de glaces dans le congélateur avec synchronisation Firebase",
+  "start_url": "/icebox/",
+  "scope": "/icebox/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e3a8a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231e3a8a' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dy='.3em'>❄️</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%231e3a8a' width='512' height='512'/><text x='50%' y='50%' font-size='250' fill='white' text-anchor='middle' dy='.3em'>❄️</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["shopping", "lifestyle", "productivity"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><defs><linearGradient id='grad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%231e3a8a;stop-opacity:1' /><stop offset='100%' style='stop-color:%233b82f6;stop-opacity:1' /></linearGradient></defs><rect fill='url(%23grad)' width='540' height='720'/><rect fill='white' x='20' y='100' width='500' height='600' rx='20'/><text x='270' y='180' font-size='60' fill='%231e3a8a' text-anchor='middle' font-weight='bold'>❄️ Icebox</text><text x='270' y='230' font-size='20' fill='%236b7280' text-anchor='middle'>Gérez vos glaces</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Ajouter une glace",
+      "short_name": "Ajouter",
+      "description": "Ajouter rapidement une glace à votre liste",
+      "url": "/icebox/?shortcut=add",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231e3a8a' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dy='.3em'>➕</text></svg>",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1e3a8a">
+    <meta name="description" content="Icebox - Gérez votre liste de glaces">
+    <title>Icebox - Ma Liste de Glaces</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231e3a8a' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dy='.3em'>❄️</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%231e3a8a' width='192' height='192'/><text x='50%' y='50%' font-size='100' fill='white' text-anchor='middle' dy='.3em'>❄️</text></svg>">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            min-height: 100vh;
+            color: #1f2937;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px 16px 0 0;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #1e3a8a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            color: #6b7280;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+
+        .add-section {
+            background: #f0f9ff;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 80px 80px;
+            gap: 10px;
+            align-items: flex-end;
+            border-bottom: 2px solid #e0e7ff;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            padding: 10px;
+            border: 2px solid #bfdbfe;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            background: white;
+        }
+
+        .form-group input[type="number"] {
+            width: 100%;
+        }
+
+        button {
+            padding: 10px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .add-btn {
+            grid-column: 3;
+        }
+
+        .list-section {
+            background: white;
+            border-radius: 0 0 16px 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .list-empty {
+            padding: 60px 20px;
+            text-align: center;
+            color: #9ca3af;
+        }
+
+        .list-empty p {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .list-empty small {
+            display: block;
+            color: #d1d5db;
+            font-size: 0.9rem;
+        }
+
+        .ice-cream-item {
+            display: grid;
+            grid-template-columns: 1fr 80px 60px;
+            gap: 12px;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.3s;
+        }
+
+        .ice-cream-item:last-child {
+            border-bottom: none;
+        }
+
+        .ice-cream-item:hover {
+            background: #f9fafb;
+        }
+
+        .ice-cream-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .ice-cream-name {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 1.05rem;
+        }
+
+        .ice-cream-details {
+            display: flex;
+            gap: 12px;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .ice-cream-details span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .quantity-control {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qty-display {
+            width: 30px;
+            text-align: center;
+            font-weight: 600;
+            color: #1e3a8a;
+            font-size: 1.1rem;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            background: #10b981;
+        }
+
+        .status-low {
+            background: #f59e0b;
+        }
+
+        .status-empty {
+            background: #ef4444;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .add-section {
+                grid-template-columns: 1fr;
+            }
+
+            .add-btn {
+                grid-column: auto;
+            }
+
+            .ice-cream-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .ice-cream-details {
+                margin-top: 4px;
+            }
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #9ca3af;
+        }
+
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 0.85rem;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @media (max-width: 600px) {
+            .sync-status {
+                bottom: 10px;
+                right: 10px;
+                font-size: 0.75rem;
+                padding: 10px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>❄️ Icebox</h1>
+            <p>Gérez votre liste de glaces</p>
+        </div>
+
+        <div class="add-section">
+            <div class="form-group">
+                <label for="iceCreamName">Nom de la glace</label>
+                <input type="text" id="iceCreamName" placeholder="ex: Vanille, Chocolat..." autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="iceCreamFlavor">Saveur</label>
+                <input type="text" id="iceCreamFlavor" placeholder="ex: Fraise" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="iceCreamQty">Quantité</label>
+                <input type="number" id="iceCreamQty" placeholder="1" min="1" value="1">
+            </div>
+            <button class="add-btn" onclick="addIceCream()">Ajouter</button>
+        </div>
+
+        <div class="list-section" id="listContainer">
+            <div class="loading">Chargement des glaces...</div>
+        </div>
+    </div>
+
+    <div class="sync-status" id="syncStatus">
+        <div class="sync-dot"></div>
+        <span id="syncText">Synchronisation en cours...</span>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHHF3E9jhrjQUH2Ren2r2JVAFm0_ep0n4",
+            authDomain: "icebox-2026.firebaseapp.com",
+            projectId: "icebox-2026",
+            storageBucket: "icebox-2026.firebasestorage.app",
+            messagingSenderId: "543027765176",
+            appId: "1:543027765176:web:a4339a6eb939459955b94d",
+            measurementId: "G-X0VSEWWQKN",
+            databaseURL: "https://icebox-2026-default-rtdb.europe-west1.firebasedatabase.app/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        let iceCreamData = {};
+        let isSyncing = false;
+
+        function updateSyncStatus(syncing) {
+            isSyncing = syncing;
+            const statusEl = document.getElementById('syncStatus');
+            const textEl = document.getElementById('syncText');
+            if (syncing) {
+                statusEl.style.opacity = '1';
+                textEl.textContent = 'Synchronisation en cours...';
+            } else {
+                statusEl.style.opacity = '0.7';
+                textEl.textContent = 'Synchronisé';
+                setTimeout(() => {
+                    statusEl.style.opacity = '0.7';
+                }, 3000);
+            }
+        }
+
+        function addIceCream() {
+            const name = document.getElementById('iceCreamName').value.trim();
+            const flavor = document.getElementById('iceCreamFlavor').value.trim();
+            const qty = parseInt(document.getElementById('iceCreamQty').value) || 1;
+
+            if (!name) {
+                alert('Veuillez entrer un nom de glace');
+                return;
+            }
+
+            updateSyncStatus(true);
+
+            const newIceCream = {
+                name: name,
+                flavor: flavor,
+                quantity: qty,
+                createdAt: new Date().toISOString()
+            };
+
+            push(ref(database, 'icecreams'), newIceCream).then(() => {
+                document.getElementById('iceCreamName').value = '';
+                document.getElementById('iceCreamFlavor').value = '';
+                document.getElementById('iceCreamQty').value = '1';
+                document.getElementById('iceCreamName').focus();
+                updateSyncStatus(false);
+            }).catch(error => {
+                console.error('Erreur lors de l\'ajout:', error);
+                alert('Erreur lors de l\'ajout de la glace');
+                updateSyncStatus(false);
+            });
+        }
+
+        function deleteIceCream(id) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette glace ?')) {
+                updateSyncStatus(true);
+                remove(ref(database, 'icecreams/' + id)).then(() => {
+                    updateSyncStatus(false);
+                }).catch(error => {
+                    console.error('Erreur lors de la suppression:', error);
+                    updateSyncStatus(false);
+                });
+            }
+        }
+
+        function updateQuantity(id, delta) {
+            const current = iceCreamData[id].quantity || 0;
+            const newQty = Math.max(0, current + delta);
+
+            updateSyncStatus(true);
+            update(ref(database, 'icecreams/' + id), { quantity: newQty }).then(() => {
+                updateSyncStatus(false);
+            }).catch(error => {
+                console.error('Erreur lors de la mise à jour:', error);
+                updateSyncStatus(false);
+            });
+        }
+
+        function renderList() {
+            const container = document.getElementById('listContainer');
+            const items = Object.entries(iceCreamData);
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="list-empty"><p>❄️ Aucune glace dans le congélateur</p><small>Commencez par en ajouter une !</small></div>';
+                return;
+            }
+
+            let html = '';
+            items.forEach(([id, data]) => {
+                const qty = data.quantity || 0;
+                let statusClass = 'status-indicator';
+                if (qty === 0) statusClass += ' status-empty';
+                else if (qty < 3) statusClass += ' status-low';
+
+                html += `
+                    <div class="ice-cream-item">
+                        <div class="ice-cream-info">
+                            <div class="ice-cream-name">
+                                <span class="${statusClass}"></span>${data.name}
+                            </div>
+                            <div class="ice-cream-details">
+                                ${data.flavor ? `<span>🍨 ${data.flavor}</span>` : ''}
+                                <span>📅 ${new Date(data.createdAt).toLocaleDateString('fr-FR')}</span>
+                            </div>
+                        </div>
+                        <div class="quantity-control">
+                            <button class="qty-btn" onclick="window.updateQuantity('${id}', -1)">−</button>
+                            <div class="qty-display">${qty}</div>
+                            <button class="qty-btn" onclick="window.updateQuantity('${id}', 1)">+</button>
+                        </div>
+                        <button class="delete-btn" onclick="window.deleteIceCream('${id}')">🗑️</button>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function loadData() {
+            updateSyncStatus(true);
+            onValue(ref(database, 'icecreams'), (snapshot) => {
+                iceCreamData = snapshot.val() || {};
+                renderList();
+                updateSyncStatus(false);
+            });
+        }
+
+        window.addIceCream = addIceCream;
+        window.deleteIceCream = deleteIceCream;
+        window.updateQuantity = updateQuantity;
+
+        document.getElementById('iceCreamName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addIceCream();
+        });
+
+        if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.protocol === 'http:')) {
+            navigator.serviceWorker.register('./sw.js').catch(err => {
+                console.log('Service Worker non enregistré:', err);
+            });
+        } else {
+            console.log('Service Worker skipped: page is not served over http(s). Use a local server or GitHub Pages to enable PWA features.');
+        }
+
+        loadData();
+    </script>
+</body>
+</html>

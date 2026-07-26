@@ -1,0 +1,11 @@
+theme: jekyll-theme-cayman
+title: Icebox - Ma Liste de Glaces
+description: Une PWA pour gérer votre inventaire de glaces avec Firebase
+
+# Configuration GitHub Pages
+plugins:
+  - jekyll-default-layout
+
+# Pour éviter que Jekyll traite certains fichiers
+include:
+  - .nojekyll
