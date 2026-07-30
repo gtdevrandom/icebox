@@ -180,7 +180,7 @@
         .ice-cream-details {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px 12px;
+            gap: 6px 8px;
             font-size: 0.85rem;
             color: #6b7280;
         }
@@ -535,7 +535,6 @@
                             </div>
                             <div class="ice-cream-details">
                                 ${data.flavor ? `<span>🍨 ${data.flavor}</span>` : ''}
-                                <span>📅 ${new Date(data.createdAt).toLocaleDateString('fr-FR')}</span>
                             </div>
                         </div>
                         <div class="quantity-control">
