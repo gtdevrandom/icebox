@@ -363,10 +363,31 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
+        const STORAGE_KEY = 'icebox-local-data-v1';
         let iceCreamData = {};
         let isSyncing = false;
 
-        function updateSyncStatus(syncing) {
+        function loadLocalData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    return JSON.parse(saved);
+                }
+            } catch (error) {
+                console.warn('Impossible de charger les données locales:', error);
+            }
+            return {};
+        }
+
+        function saveLocalData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(iceCreamData));
+            } catch (error) {
+                console.warn('Impossible de sauvegarder localement:', error);
+            }
+        }
+
+        function updateSyncStatus(syncing, message = null) {
             isSyncing = syncing;
             const statusEl = document.getElementById('syncStatus');
             const textEl = document.getElementById('syncText');
@@ -375,7 +396,7 @@
                 textEl.textContent = 'Synchronisation en cours...';
             } else {
                 statusEl.style.opacity = '0.7';
-                textEl.textContent = 'Synchronisé';
+                textEl.textContent = message || 'Synchronisé';
                 setTimeout(() => {
                     statusEl.style.opacity = '0.7';
                 }, 3000);
@@ -401,6 +422,8 @@
                 createdAt: new Date().toISOString()
             };
 
+            const tempId = `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
             push(ref(database, 'icecreams'), newIceCream).then(() => {
                 document.getElementById('iceCreamName').value = '';
                 document.getElementById('iceCreamFlavor').value = '';
@@ -408,9 +431,15 @@
                 document.getElementById('iceCreamName').focus();
                 updateSyncStatus(false);
             }).catch(error => {
-                console.error('Erreur lors de l\'ajout:', error);
-                alert('Erreur lors de l\'ajout de la glace');
-                updateSyncStatus(false);
+                console.warn('Firebase indisponible, sauvegarde locale activée:', error);
+                iceCreamData[tempId] = newIceCream;
+                saveLocalData();
+                renderList();
+                document.getElementById('iceCreamName').value = '';
+                document.getElementById('iceCreamFlavor').value = '';
+                document.getElementById('iceCreamQty').value = '1';
+                document.getElementById('iceCreamName').focus();
+                updateSyncStatus(false, 'Sauvegardé localement');
             });
         }
 
@@ -420,8 +449,11 @@
                 remove(ref(database, 'icecreams/' + id)).then(() => {
                     updateSyncStatus(false);
                 }).catch(error => {
-                    console.error('Erreur lors de la suppression:', error);
-                    updateSyncStatus(false);
+                    console.warn('Suppression locale appliquée:', error);
+                    delete iceCreamData[id];
+                    saveLocalData();
+                    renderList();
+                    updateSyncStatus(false, 'Supprimé localement');
                 });
             }
         }
@@ -434,8 +466,13 @@
             update(ref(database, 'icecreams/' + id), { quantity: newQty }).then(() => {
                 updateSyncStatus(false);
             }).catch(error => {
-                console.error('Erreur lors de la mise à jour:', error);
-                updateSyncStatus(false);
+                console.warn('Mise à jour locale appliquée:', error);
+                if (iceCreamData[id]) {
+                    iceCreamData[id] = { ...iceCreamData[id], quantity: newQty };
+                    saveLocalData();
+                    renderList();
+                }
+                updateSyncStatus(false, 'Mise à jour locale');
             });
         }
 
@@ -480,11 +517,30 @@
         }
 
         function loadData() {
+            iceCreamData = loadLocalData();
+            renderList();
             updateSyncStatus(true);
+
             onValue(ref(database, 'icecreams'), (snapshot) => {
-                iceCreamData = snapshot.val() || {};
+                const remoteData = snapshot.val() || {};
+                if (Object.keys(remoteData).length > 0) {
+                    iceCreamData = remoteData;
+                    saveLocalData();
+                    renderList();
+                    updateSyncStatus(false);
+                } else if (Object.keys(iceCreamData).length > 0) {
+                    saveLocalData();
+                    renderList();
+                    updateSyncStatus(false, 'Données locales chargées');
+                } else {
+                    renderList();
+                    updateSyncStatus(false);
+                }
+            }, (error) => {
+                console.warn('Lecture Firebase indisponible, utilisation des données locales:', error);
+                iceCreamData = loadLocalData();
                 renderList();
-                updateSyncStatus(false);
+                updateSyncStatus(false, 'Mode local activé');
             });
         }
 
